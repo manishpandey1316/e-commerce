@@ -109,7 +109,7 @@ server.get('*', (req, res) => {
 
 
 server.post("/create-payment-intent", async (req, res) => {
-  const { total,OrderId } = req.body;
+  const { total,orderId } = req.body;
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
@@ -120,7 +120,7 @@ server.post("/create-payment-intent", async (req, res) => {
       enabled: true,
     },
     metadata:{
-      OrderId
+      orderId
     }
   });
 
