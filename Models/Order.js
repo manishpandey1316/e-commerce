@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
     deliveryAddress:{type:mongoose.Schema.Types.Mixed,required:true},
     totalItems:{type:Number,required:true},
     total:{type:Number,required:true},
-    status:{type:String,default:"pending"}
+    status:{type:String,default:"Pending"}
 })
 
 const virtual=schema.virtual('id')
