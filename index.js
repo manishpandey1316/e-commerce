@@ -20,7 +20,8 @@ const ExtractJWT = passportJWT.ExtractJwt;
 const crypto = require("crypto");
 const {checkAuthenticated,sanatizeUser,cookieExtractor}=require('./services/common')
 const stripe = require("stripe")(process.env.STRIPE_SERVER_KEY)
-const path=require('path')
+const path=require('path');
+const { Order } = require("./Models/Order");
 
 const server = express();
 //imports
@@ -38,7 +39,7 @@ main().catch((err) => {
 
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
-server.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+server.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
@@ -54,7 +55,9 @@ server.post('/webhook', express.raw({type: 'application/json'}), (request, respo
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntentSucceeded = event.data.object;
-      // Then define and call a function to handle the event payment_intent.succeeded
+      const order = await Order.findById(paymentIntentSucceeded.metadata.order_id)
+      order.paymentStatus="Received"
+      await order.save()
       break;
     // ... handle other event types
     default:
