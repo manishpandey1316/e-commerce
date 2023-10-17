@@ -1,6 +1,6 @@
 const {User}=require('../Models/User')
 const crypto =require('crypto')
-const {sanatizeUser}=require('../services/common')
+const {sanatizeUser, createMail}=require('../services/common')
 const jwt = require('jsonwebtoken');
 exports.createUser= async (req,res)=>
 {
@@ -16,7 +16,7 @@ exports.createUser= async (req,res)=>
           {
             res.status(501).json(err)
           }
-          const token = jwt.sign(sanatizeUser(req.user), process.env);
+          const token = jwt.sign(sanatizeUser(req.user), process.env.JWT_SECRET);
           return res.cookie('jwt',token,{ expires: new Date(Date.now() + 900000), httpOnly: true })
           .status(201).json(sanatizeUser(req.user))
        })
@@ -79,4 +79,57 @@ exports.logout=(req,res)=>
 {
     res.clearCookie('jwt');
     return res.sendStatus(201);
+}
+
+exports.resetRequest=async(req,res)=>
+{
+   try{
+   const {email}=req.body
+   const user=await User.findOne({email:email})
+   if(user)
+   {
+      const token=crypto.randomBytes(64).toString('hex')
+      user.resetToken=token
+      await user.save()
+      const url=`http://localhost:8000/ResetPassword?token=${token}&email=${email}`
+      const subject="Reset Password"
+      const html=`<p>click <a href=${url}>here</a>  to reset password</p>`
+      await createMail({email,subject,html})
+      return res.status(201).json({message:"Check your email for reset link"})
+   }
+   else{
+      return res.status(401).json({message:"User dosen't exist"})
+   }   
+   }
+   catch(error)
+   {
+      return res.status(401).json(error)
+   }
+}
+exports.resetConfirm=async(req,res)=>
+{
+   try{
+   const {email,token,password}=req.body
+   const user=await User.findOne({email:email,resetToken:token})
+   if(user)
+   {
+      const salt = crypto.randomBytes(16);
+      crypto.pbkdf2(password, salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+      user.password=hashedPassword
+      user.salt=salt
+      await user.save()})
+      const url=`http://localhost:8000/Login`
+      const subject="Password Sucessfully Updated"
+      const html=`<p>Your password has been changed successfully.Click  <a href='${url}'>here</a>  to login</p>`
+      await createMail({email,subject,html})
+      return res.status(201).json({message:"Your password has been changed successfully"})
+   }
+   else{
+      return res.status(401).json({message:"User dosen't exist"})
+   }  
+} 
+catch(error)
+{
+   return res.status(401).json(error)
+}
 }

@@ -8,5 +8,7 @@ router
 .post('/signup',User.createUser)
 .get('/logout',User.logout)
 .get('/check',checkAuthenticated(),User.check)
+.post('/reset-password-request',User.resetRequest)
+.post('/reset-password-confirm',User.resetConfirm)
 
 exports.AuthRouter=router
