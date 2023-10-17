@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
     Address:{type:[mongoose.Schema.Types.Mixed],required:true},
     role:{type:String,required:true},
     salt:Buffer
-})
+},{timestamps:true})
 
 const virtual=schema.virtual('id')
 virtual.get(function(){

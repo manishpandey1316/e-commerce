@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
     totalItems:{type:Number,required:true},
     total:{type:Number,required:true},
     status:{type:String,default:"Pending"}
-})
+},{timestamps:true})
 
 const virtual=schema.virtual('id')
 virtual.get(function(){
