@@ -39,7 +39,7 @@ main().catch((err) => {
 
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
-server.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
+server.post('/webhook', checkAuthenticated(),express.raw({type: 'application/json'}), async (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
@@ -111,7 +111,7 @@ server.get('*', (req, res) => {
 
 
 
-server.post("/create-payment-intent", async (req, res) => {
+server.post("/create-payment-intent",checkAuthenticated(), async (req, res) => {
   const { total,orderId } = req.body;
 
   // Create a PaymentIntent with the order amount and currency
