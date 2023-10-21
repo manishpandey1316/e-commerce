@@ -85,13 +85,14 @@ exports.resetRequest=async(req,res)=>
 {
    try{
    const {email}=req.body
-   const user=await User.findOne({email:email})
+   const user=await User.findOne({email:email.toLowerCase()})
    if(user)
    {
       const token=crypto.randomBytes(64).toString('hex')
       user.resetToken=token
       await user.save()
       const url=`http://localhost:8000/ResetPassword?token=${token}&email=${email}`
+      //to do
       const subject="Reset Password"
       const html=`<p>click <a href=${url}>here</a>  to reset password</p>`
       await createMail({email,subject,html})
@@ -110,7 +111,7 @@ exports.resetConfirm=async(req,res)=>
 {
    try{
    const {email,token,password}=req.body
-   const user=await User.findOne({email:email,resetToken:token})
+   const user=await User.findOne({email:email.toLowerCase(),resetToken:token})
    if(user)
    {
       const salt = crypto.randomBytes(16);
@@ -119,6 +120,7 @@ exports.resetConfirm=async(req,res)=>
       user.salt=salt
       await user.save()})
       const url=`http://localhost:8000/Login`
+      //to do
       const subject="Password Sucessfully Updated"
       const html=`<p>Your password has been changed successfully.Click  <a href='${url}'>here</a>  to login</p>`
       await createMail({email,subject,html})
@@ -133,3 +135,5 @@ catch(error)
    return res.status(401).json(error)
 }
 }
+
+

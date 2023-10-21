@@ -1,11 +1,20 @@
 const {Order} = require('../Models/Order')
 const {Cart}=require('../Models/Cart')
+const { orderConfirmationMail, createMail } = require('../services/common')
+const { Product } = require('../Models/Product')
 exports.createOrder= async (req,res)=>
 {
 
   const {id}=req.user    
+ 
     const order = new Order({...req.body,userId:id})
     const doc= await order.save().then(t=>t.populate({path: 'orderedProducts',populate:{path:'product'}})).then(t=>t)
+    const html=orderConfirmationMail({orderDetails:doc})
+    const subject="Order Confirmation"
+    createMail({email:doc.deliveryAddress.email,subject,html})
+     doc.orderedProducts.map((item)=>{
+      Product.findByIdAndUpdate(item.product.id,{$inc: {stock:(-1*item.quantity) }})
+    })
     try{
     return res.status(201).json(doc)
     } 
@@ -17,12 +26,9 @@ exports.createOrder= async (req,res)=>
 }
 
 exports.fetchOrderByUser=async (req,res)=>
-{
+{ try{
     const {id}=req.user
     const doc=await Order.find({userId:id}).populate({path: 'orderedProducts',populate:{path:'product'}})
-   
-    try{
-      
     return res.status(201).json(doc)
     }
    catch(err)
@@ -36,6 +42,7 @@ exports.updateOrder=async (req,res)=>
 {
     try{
     const doc=await Order.findByIdAndUpdate(req.params.id,req.body,{new:true}).populate({path: 'orderedProducts',populate:{path:'product'}})
+    
     return res.status(201).json(doc)
     }
    catch(err)

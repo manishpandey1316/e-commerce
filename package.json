@@ -19,6 +19,7 @@
     "gitignore": "^0.7.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.3",
+    "mongoose-double": "^0.0.1",
     "nodemailer": "^6.9.6",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",

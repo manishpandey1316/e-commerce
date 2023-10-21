@@ -1,9 +1,11 @@
 const mongoose= require('mongoose')
+require('mongoose-double')(mongoose);
 const schema = new mongoose.Schema({
     title:{type:String,required:true},
     description:{type:String,required:true},
     price:{type:Number,required:true,min:[1,"Price Cant' be zero"]},
     discountPercentage:{type:Number,required:true,min:[1,"discount percentage can't be zero"]},
+    discountedPrice:{type:mongoose.Schema.Types.Double},
     rating:{type:Number,default:0},
     stock:{type:Number,default:0},
     brand:{type:String,required:true},

@@ -2,8 +2,9 @@ const {Product} = require('../Models/Product')
 
 exports.createProduct= async (req,res)=>
 {
-
-    const product = new Product(req.body)
+    const data=req.body
+    const discountedPrice=(100-data.discountPercentage)*price/100
+    const product = new Product({...data,},discountedPrice)
     try{
         const doc=await product.save()
         return res.status(201).json(doc)
@@ -67,8 +68,10 @@ exports.fetchProductbyFilter=async (req,res)=>
 
 exports.updateProduct=async (req,res)=>
 {
+  const data=req.body
+  const discountedPrice=(100-data.discountPercentage)*price
     try{
-    const doc=await Product.findByIdAndUpdate(req.params.id,req.body,{new:true})
+    const doc=await Product.findByIdAndUpdate(req.params.id,{...data,discountedPrice},{new:true})
     return res.status(201).json(doc)
     }
    catch(err)
