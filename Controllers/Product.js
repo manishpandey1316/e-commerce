@@ -29,10 +29,11 @@ exports.fetchProductbyId=async (req,res)=>
 }
 exports.fetchProductbyFilter=async (req,res)=>
 {
-   const {role} = req.user
+  if(req.user)
+   {const {role} = req.user}
     let query =  Product.find({}) 
     let query2 =  Product.find({})
-    if(role==='user')
+    if(!req.user || role==='user')
     {
       query=query.find({status:{$ne:"deleted"}})
       query2=query2.find({status:{$ne:"deleted"}})
