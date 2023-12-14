@@ -33,6 +33,7 @@ exports.fetchProductbyFilter=async (req,res)=>
    {const {role} = req.user}
     let query =  Product.find({}) 
     let query2 =  Product.find({})
+    
     if(!req.user || role==='user')
     {
       query=query.find({status:{$ne:"deleted"}})
